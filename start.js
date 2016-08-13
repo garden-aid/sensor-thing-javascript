@@ -14,6 +14,7 @@ const deviceOptions = require(configFilePath);
 console.log('Creating device with options', deviceOptions);
 
 const device = awsIot.device(deviceOptions);
+const interval = 1000 * 60 * 1; // one minute
 
 function getRandomLevel(min,max) {
     return Math.random()*(max-min+1)+min;
@@ -31,20 +32,13 @@ function publishMoisture(level) {
 function publishRandomMoisture() {
   const level = getRandomLevel(0, 5);
   publishMoisture(level);
-}
-
-const interval = 1000 * 60 * 1; // one minute
-
-const initialize = _.once(() => {
-  console.log('Initilizing');
-  publishRandomMoisture();
   setTimeout(publishRandomMoisture, interval);
-});
+}
 
 device
   .on('connect', function() {
     console.log('connect');
-    initialize();
+    publishRandomMoisture();
   });
 
 device
@@ -54,6 +48,7 @@ device
 device
   .on('reconnect', function() {
      console.log('reconnect');
+     publishRandomMoisture();
   });
 device
   .on('offline', function() {
