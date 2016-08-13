@@ -1,0 +1,29 @@
+{
+  "name": "sensor-thing-javascript",
+  "version": "0.0.1",
+  "description": "Fake sensor written in nodejs",
+  "main": "start.js",
+  "dependencies": {
+    "aws-iot-device-sdk": "^1.0.12",
+    "lodash": "^4.15.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/garden-aid/sensor-thing-javascript.git"
+  },
+  "keywords": [
+    "AWS",
+    "IoT",
+    "Serverless"
+  ],
+  "author": "John McKim <johncmckim@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/garden-aid/sensor-thing-javascript/issues"
+  },
+  "homepage": "https://github.com/garden-aid/sensor-thing-javascript#readme"
+}
