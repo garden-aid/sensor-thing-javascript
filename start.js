@@ -2,61 +2,45 @@
 
 'use strict'
 
-const _      = require('lodash');
-const awsIot = require('aws-iot-device-sdk');
+const _               = require('lodash');
+const awsIot          = require('aws-iot-device-sdk');
+const configHelper          = require('./config');
+const deviceFactory   = require('./deviceFactory');
+const moistureFactory = require('./moistureFactory');
 
-const configFilePath = process.argv[2] || './config.json';
+let configFilePath = process.argv[2] || './config.json';
 
-console.log('Using config file ' + configFilePath);
+const config = configHelper.get(configFilePath);
+const device = deviceFactory(config);
 
-const deviceOptions = require(configFilePath);
-
-console.log('Creating device with options', deviceOptions);
-
-const device = awsIot.device(deviceOptions);
-const interval = 1000 * 60 * 1; // one minute
-
-function getRandomLevel(min,max) {
-    return Math.random()*(max-min+1)+min;
-}
-
-function publishMoisture(level) {
-  console.log('Publishing level', level);
-  device.publish('garden/soil/moisture', JSON.stringify({
-    DeviceId: 'test-js-device',
-    Recorded: (new Date()).toISOString(),
-    Level: level
-  }));
-}
-
-function publishRandomMoisture() {
-  const level = getRandomLevel(0, 5);
-  publishMoisture(level);
-  setTimeout(publishRandomMoisture, interval);
-}
+const moisture = moistureFactory(config, device);
 
 device
   .on('connect', function() {
     console.log('connect');
-    publishRandomMoisture();
+    moisture.startPublishing();
+  });
+
+device
+  .on('reconnect', function() {
+     console.log('reconnect');
+     moisture.startPublishing();
   });
 
 device
   .on('close', function() {
      console.log('close');
-  });
-device
-  .on('reconnect', function() {
-     console.log('reconnect');
-     publishRandomMoisture();
+     moisture.stopPublishing();
   });
 device
   .on('offline', function() {
      console.log('offline');
+     moisture.stopPublishing();
   });
 device
   .on('error', function(error) {
      console.log('error', error);
+     moisture.stopPublishing();
   });
 device
   .on('message', function(topic, payload) {
